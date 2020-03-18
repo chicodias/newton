@@ -1,0 +1,247 @@
+---
+title: "Soluções de Equações Polinomiais"
+subtitle: "História e Métodos Numéricos em R"
+author: "Francisco Miranda e Julia Trazzi"
+emails: "francisco.miranda@usp.br jujuselvatici@gmail.com"
+local: "Instituto de Matemática e Estatística da Universidade de São Paulo - Brasil"
+date: "`r Sys.Date()`"
+output:
+  tufte::tufte_html: default
+  tufte::tufte_handout:
+    citation_package: bibtex
+    latex_engine: abntex2
+  tufte::tufte_book:
+    citation_package: bibtex
+    latex_engine: abntex2
+bibliography: skeleton.bib
+link-citations: yes
+fontsize: 11
+mainfont: Times New Roman
+class: article
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+---
+output: pdf_document
+---
+\usepackage{amssymb,amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{nomencl} 		
+\usepackage{color}			
+\usepackage{graphicx}		
+\usepackage{microtype}
+
+# Resumo
+\section{resumo}
+<justify>
+  Este trabalho tem como objetivo apresentar um breve panorama de como as equações algébricas foram resolvidas ao longo da história, assim como discutir sobre métodos numéricos que possibilitem a resolução de equações polinomiais através do método das secantes e das tangentes. Como conclusão, a eficiência dos métodos foi comparada, além da discussão de métodos que contornem problemas conhecidos dos métodos de Newton e Secantes.
+</justify>
+\vspace{\onelineskip}
+ 
+ \noindent
+\textbf{Palavras-chave} Palavras-chave: Cálculo Numérico, Zero de Funções, Métodos Numéricos em R.
+
+# Introdução
+\section{Introdução}
+
+  O problema de encontrar zero de funções ainda hoje possui diversas aplicações, por exemplo em problemas de cunho científico. Ainda assim, sua solução está presente mais antigos da registros da história matemática. Desde 1600 A.C. os babilônios já resolviam equações quadráticas através de tabelas.\
+  A formulação algébrica foi um importante passo que permitiu sua generalização, entretanto, surgiu somente muito mais tarde. Até então não haviam meios de tratar uma equação cúbica num único caso.\
+  A próxima sessão apresentará uma resolução para equações de grau 3 e 4. A seguir, serão introduzidas técnicas de solução numérica, implementando-as em linguagem R.\
+  A conclusão comparará a eficiência entre os métodos abordados, comentando a respeito de algoritmos que contornam alguns dos problemas inerentes às funções utilizadas.
+
+
+# Solução algébrica
+  \section{Solução algébrica de equações}
+
+  É considerado elementar no currículo escolar a resolução de equações quadráticas: já durante o Ensino Fundamental a Fórmula de Bhaskara é lecionada. A solução de equações cúbicas por radicais, no entanto, é menos conhecida. Até o século XVI, sequer havia alguma formulação genérica que admitisse soluções complexas ou mesmo negativas para o problema.$^{[3]}$\
+  
+  Esse enigma demorou cerca de 3.000 anos para ser resolvido, sendo considerado um dos mais duradouros da história da humanidade. Somente durante a Renascença, Cardano apresentou uma solução.$^{[3][1][2]}$\
+  \vspace{\onelineskip}
+  Dada a equação do terceiro grau: 
+  $x^3 + px _ q = 0$,
+  sejam $p = b - \frac{a^2}{3}, q = \frac{2a^3}{27} - \frac{ab}{3} + c$
+  
+  As soluções são dadas por:
+  \vspace{\onelineskip}
+  $$x = w^k \sqrt[3]{− \frac{q}{2} \sqrt{\frac{q^2}{4} + \frac{p^3}{27}}}+ w^k \sqrt[3]{-\frac{q}{2} −   \sqrt{\frac{q^2}{4} + \frac{p^3}{27}}}, k = 0,1,2 $$
+
+  A solução das equações de grau 4 surgiu mais tarde, através do chamado Método de Ferrari. $^{[1][2]}$\
+
+  Tome a equação genérica do quarto grau $x^4 + px^2 + + qx + r = 0$.
+  Considere $x = u + v + z$, com $u,v,z \neq 0$ solução do para o sistema linear obtido.
+  A cúbica solvente é expressada através de: $y^3+(\frac{p}{2})$ $4(u^2v^2 + u^2z^2 + v^2z^2) +$
+  
+  
+  $$x_1 = \sqrt{\alpha} + \sqrt{\beta} + \sqrt{\gamma}$$
+  $$x_2 = \sqrt{\alpha} − \sqrt{\beta} − \sqrt{\gamma}$$
+  $$x_3 = \sqrt{\alpha} + \sqrt{\beta} − \sqrt{\gamma}$$
+  $$x_4 = −\sqrt{\alpha} − \sqrt{\beta} + \sqrt{\gamma}$$
+  
+  
+  A irresolubilidade da equação de grau $n \geq 5$ é provada a partir do chamado teorema fundamental da teoria de Galois, que culminou na criação de um campo denominado Teoria dos Corpos. $^{[1][2]}$
+
+
+# Técnicas Numéricas
+
+  \section{Técnicas Numéricas}
+ 
+Tome um polinômio $P(x) = a_n x^n + a_{n-1} x^{n-1} + ... + a_1 x + a_0$
+
+Pelo Teorema de Bolzano, se $f(a).f(b) < 0$, existe pelo menos uma raiz em $[a,b]$. A partir daí, pode-se utilizar o critério da dicotomia para isolar a raiz, em conjunto com estudo do sinal da derivada de $f$. $^{[4][5]}$\
+  
+  Para calcular raízes múltiplas de um polinômio $P(x)$, admitimos ele possui $n$ raízes, considerando $k$ vezes uma multiplicidade $k$.$^{[4]}$.\
+  Se $x_1,x_2,...,x_n$ forem as raízes de $P(x)$, então podemos expressá-lo na forma fatorada:
+
+$$
+P(x) = a_n(x-x_1)(x-x_2) ... (x-x_n)
+$$
+
+  Se os coeficientes $a_k,_(k = 0, 1, ..., n)$ forem reais, $a + bi$ e $a- bi$ serão as raízes complexas de $P(x)$.
+
+##Soluções Numéricas de Resolução
+\section{Resolução}
+  O Método de Newton combina duas ideias básicas: a linearização e a iteração, utilizadas até que seja atingido o grau de aproximação desejado.
+  
+  Porém, uma de suas desvantagens e o fato de ser necessário obter a $f'(x)$, assim como calcular seu valor a cada iteração. O Método das Secantes, ao invés de determinar a inclinação da reta tangente pela inclinação da reta secante à curva.$^{[7]}$
+
+Para calcular numericamente as raízes de um polinômio, iremos adotar uma implementação em R do Método de Newton e do Método das Secantes que envolve a utilização de dois pacotes: o pracma e o spuRs.
+
+O pacote spuRs possui os scripts, funções e conjuntos de dados para o livro Introduction to Scientific Programming and Simulation Using R. As funções que iremos utilizar são \emph{bisection()} e \emph{newtonraphson()}.
+
+O pacote pracma conta com funções geralmente utilizadas em análise numérica. Aqui iremos utilizar os métodos de Newton, Newton-Raphson e Secante, através das funções \emph{newtonRaphson()} e a \emph{secant()}.$^{[7]}$
+
+<!-- ####instalando os pacotes -->
+<!-- ````{r} -->
+<!-- #Se não tiver os pacotes, instale através do seguintes comandos: -->
+<!-- install.packages("pracma") -->
+<!-- install.packages("spuRs") -->
+<!-- ```` -->
+
+
+####Método da Bissecção
+>>library(spuRs)
+
+>>ftn=function(x) log(x)-x+2
+>>bisection(ftn,3,4,10^-5)
+  
+####Método de Newton  
+>>ftn2 <- function(x) {
+    fx <- log(x)-x+2
+    dfx <- 1/x - 1
+    return(c(fx, dfx))
+  } 
+  
+>>newtonraphson(ftn2,3.3,10^-5)
+
+####Função que exibe a solução graficamente
+>>newtonraphson_show(ftn2,3.3,10^-5)
+
+###Métodos de Bissecção e Newton-Raphson no \\spuRs
+
+>>library(pracma)
+
+>>f <- function(x) log(x)-x+2 
+
+####Método de Newton
+>>newton(f, 1.0) 
+
+###Método das Secantes
+>>secant(f, 0.9, 1)
+  
+
+##Newton-Rapson em problemas envolvendo funções
+<!-- # ````{r} -->
+<!-- # f <- quote(sin(x)-x^2/16)        # expressão da função -->
+<!-- # fx0 <- function(x){ eval(f) }    # função -->
+<!-- # curve(fx0, -10, 10); abline(h=0) # gráfico da função -->
+<!-- #  -->
+<!-- # f1 <- D(f,"x")                   # expressão da derivada -->
+<!-- # fx1 <- function(x){ eval(f1) }   # função -->
+<!-- # par(new=TRUE); curve(fx1, -10, 10, col=2, axes=FALSE) -->
+<!-- # ```` -->
+
+### Trajetória até a obtenção da raíz
+<!-- ````{r} -->
+<!--  i <- 1       # valor inicial para o passo -->
+<!--  dif <- 100   # valor inicial para a diferença entre duas avaliações -->
+<!--  tol <- 10^-9 # diferência mínima entre duas avaliações (tolerância) -->
+<!--  dif <- 100   # número máximo de passos -->
+<!--  x <- 10      # valor inicial para a raiz -->
+<!--   -->
+<!--  while(i<100 & dif>tol){ -->
+<!--    x[i+1] <- x[i]-fx0(x[i])/fx1(x[i]) -->
+<!--    dif <- abs(x[i+1]-x[i]) -->
+<!--    i <- i+1 -->
+<!--  } -->
+<!--   -->
+<!--  curve(fx0, -10, 10) -->
+<!--  for(j in 2:i){ -->
+<!--    arrows(x[j-1], fx0(x[j-1]), x[j], fx0(x[j]), length=0.1, col=3) -->
+<!--    Sys.sleep(0.5) -->
+<!--  } -->
+<!--  abline(v=x[i], h=fx0(x[i]), col=2) -->
+<!--  ```` -->
+
+### Pontos de máximo de uma função com newton-raphson
+<!-- # ````{r} -->
+<!-- # f <- quote(x*(2+0.5*x)^(-4))     # expressão da função, queremos obter MÁXIMO -->
+<!-- # fx0 <- function(x){ eval(f) }    # função -->
+<!-- # curve(fx0, -100, 10) -->
+<!-- #  -->
+<!-- # f1 <- D(f,"x")                   # expressão da derivada, obteremos o zero -->
+<!-- # fx1 <- function(x){ eval(f1) }   # função -->
+<!-- # curve(fx1, -10, 10, col=2)         # gráfico -->
+<!-- #  -->
+<!-- # f2 <- D(f1, "x") -->
+<!-- # fx2 <- function(x){ eval(f2) }   # função -->
+<!-- # ```` --> 
+
+
+#Conclusão
+
+\section{Conclusão}
+  Enquanto que a solução analítica é uma resposta exata para um problema na forma de uma expressão matemática, a solução numérica é somente um valor aproximado, porém que funciona mesmo quando a solução não é obtível analiticamente.\
+  
+  Ao analisar a eficiência de uma solução numérica, devemos levar em conta diversos critérios como por exemplo velocidade de convergência, tempo de processamento e critério de precisão.\
+  
+  Embora sua elaboração seja simples, o método da dicotomia possui uma convengência lenta se comparado ao Método de Newton, que converge quadraticamente para escolhas iniciais próximas às raizes. Contudo, ele é pior quando há raízes múltiplas no intervalo. $^{[7]}$\
+  
+  O Método das Secantes é uma alternativa em aplicações que saber a derivada da função seja oneroso, contudo ele não possui a convergência tão boa quanto Newtom, e também só encontra soluções reais.\
+  
+  As soluções complexas de $P(x)$ podem ser descobertas com auxílio do Método de Newton-Bairstow, um algoritmo que converge quadraticamente quando as aproximações iniciais são convenientes.\
+  
+  Uma das vantagens deste método é fornecer pares de raízes para polinômios reais, contudo a convergência pode ser péssima para certas escolhas de aproximações iniciais.\
+  
+  Uma das maneiras de contornar esse problema é utilizar o Algoritmo Q-D (Quociente-Diferença), que trabalha sem conhecer as aproximações iniciais, mesmo que as raízes sejam complexas.$^{[4]}$\
+
+
+#Bibliografia
+\section{Bibliografia}
+[1] UEM - Determinando raízes da equação polinomial de terceiro grau\
+
+[2] UFBA - Resolução de Equações Algébricas por Radicais\
+
+[3] Ellon Lima 3o grau\
+
+[4] Antonio Elias Fabris, - Álgebra Linear Computacional. Apostila publicada pelo Departamento de Ciências de
+Computação do IME-USP, 2015\
+
+[5] Joyce Belacqua - Notas de Aula - Map0131 Laboratório de Matemática Aplicada -  IME/USP, 2016\
+
+[6] Walmes Zeviani - Newton-Raphson em uma dimensão https://www.r-bloggers.com/lang/portuguese/479\
+
+[7]RAMOS, Marcelo Sávio. Métodos Numéricos com R: algumas notas sobre zeros de funções. 2015. 93p.. Trabalho de Conclusão de Curso (Graduação em Licenciatura em Matemática) - Universidade do Estado de Santa Catarina, Joinville, 2015.\
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
